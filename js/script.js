@@ -1,19 +1,70 @@
-<form id="generate-form" class="mt-4">
-<input 
-id="url"
-type="url" 
-placeholder="Enter a URL"
-class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5" />
+const form = document.getElementById('generate-form');
+const qr = document.getElementById('qrcode');
 
-<select id="size" class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none">
-    <option value="100">100*100</option>
-    <option value="200">200*200</option>
-    <option value="300" selected>300*300</option>
-    <option value="400">400*400</option>
-    <option value="500">500*500</option>
-    <option value="600">600*600</option>
-    <option value="700">700*700</option>
-</select>
+const onGenerateSubmit = (e) => {
+    e.preventDefault();
+    clearUI();
 
-<button class="bg-grey-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black" type="submit">Generate QR Code</button>
-</form> 
+    const url = document.getElementById('url').value; //getting the inputs from the user
+    const size = document.getElementById('size').value;
+
+    if(url === '')
+     {
+        alert("Please enter a URL");
+     }
+     else {
+       showSpinner();
+
+
+       setTimeout( () => {
+         hideSpinner();
+        
+         generateQRCode(url,size);
+
+         setTimeout( () => {
+            const saveUrl = qr.querySelector('img').src;
+            createSaveBtn(saveUrl);
+         }, 50);
+        },1000);
+       }         
+};
+
+const generateQRCode = (url,size) => {
+
+    const qrcode = new QRCode('qrcode',{
+        text : url,
+        width : size,
+        height : size,
+    });
+
+}
+
+
+const showSpinner = () => {
+    document.getElementById('spinner').style.display = 'block';
+};
+
+const hideSpinner = () => {
+    document.getElementById('spinner').style.display = 'none';
+
+};
+
+const clearUI = () => {
+    qr.innerHTML = '';
+    const saveLink = document.getElementById('save-link');
+    if (saveLink)  saveLink.remove(); //removed from the DOM Completely
+};
+
+const createSaveBtn = (saveUrl) => {
+   const link = document.createElement('a');
+   link.id = 'save-link';
+   link.classList = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 rounded w-1/3 m-auto my-5';
+   link.href = saveUrl;
+   link.download = 'qrcode';
+   link.innerHTML = 'Save Image';
+   document.getElementById('generated').appendChild(link);
+};
+
+
+hideSpinner();
+form.addEventListener('submit',onGenerateSubmit);
